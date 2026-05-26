@@ -34,7 +34,7 @@ By the end of this week you should be able to:
 |----------|------|
 | Uber Engineering Blog — architecture deep-dives | https://www.uber.com/en-IN/blog/engineering/ |
 | System Design Primer — Donne Martin (GitHub) | https://github.com/donnemartin/system-design-primer |
-| ByteByteGo YouTube — "Design Uber" episode | https://www.youtube.com/@ByteByteGo |
+| System Design: Uber (FAANG Senior Engineer) | https://www.youtube.com/watch?v=ZRAE0fUvN_M |
 | CAP Theorem Explained — Martin Kleppmann | https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html |
 
 ### Recommended Book
