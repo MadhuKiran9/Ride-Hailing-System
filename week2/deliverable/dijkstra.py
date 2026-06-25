@@ -65,6 +65,33 @@ def dijkstra(graph: dict, source: int) -> tuple[dict, dict]:
     previous = {}
 
     # --- your code here ---
+    INF = float("inf")
+
+    for i in graph.keys():
+        if(source == i):
+            distances[i] = 0
+        else:
+            distances[i] = INF   
+    
+    heap = []
+    heapq.heappush(heap, (0, source))
+    
+    visited = set()
+
+    while heap:
+        current_dist, current_node = heapq.heappop(heap)
+
+        if current_node in visited:
+            continue
+        
+        visited.add(current_node)
+        for neighbour, weight in graph[current_node]:
+            if current_dist + weight < distances[neighbour]:
+                distances[neighbour] = current_dist + weight
+                previous[neighbour] = current_node
+                heapq.heappush(heap, (distances[neighbour], neighbour))
+            
+              
 
     return distances, previous
 
@@ -79,6 +106,18 @@ def reconstruct_path(previous: dict, source: int, target: int) -> list:
     path = []
 
     # --- your code here ---
+    if target == source:
+        path = [source]
+    elif target in previous:
+        temp = target
+        while True:
+            path.append(temp)
+            if temp == source:
+                break
+            temp = previous[temp]
+        path.reverse()
+    else:
+        return []
 
     return path
 
