@@ -79,7 +79,44 @@ def find_nearby_h3(rider_lat: float, rider_lng: float, drivers: dict, count: int
         candidate_cells = h3.grid_disk(rider_cell, 1)  # k=1 ring
     """
     # --- your code here ---
-    pass
+    import h3 
+    driver_cells = {}
+
+    for driver_id in drivers:
+        lat = drivers[driver_id]["lat"]
+        lng = drivers[driver_id]["lng"]
+
+        cell = h3.latlng_to_cell(lat, lng, resolution)
+        
+        if cell not in driver_cells:
+            driver_cells[cell] = []
+
+        driver_cells[cell].append(driver_id)
+
+    rider_cell = h3.latlng_to_cell(rider_lat, rider_lng, resolution)
+
+    candidate_cells = h3.grid_disk(rider_cell, 2)
+
+    candidates = []
+
+    for cell in candidate_cells:
+
+        if cell not in driver_cells:
+            continue
+
+        for driver_id in driver_cells[cell]:
+
+            driver_lat = drivers[driver_id]["lat"]
+            driver_lng = drivers[driver_id]["lng"]
+
+            distance = haversine(rider_lat, rider_lng, driver_lat, driver_lng)
+             
+
+            candidates.append((driver_id, distance))
+
+    candidates.sort(key=lambda x: x[1])
+
+    return candidates[:count]
 
 
 # ── Option C: Your own geohash prefix implementation ──────────────────────────
@@ -127,8 +164,10 @@ def main():
     # OR
     # drivers = json.load(open("../starter/drivers_fallback.json"))
     # results, avg_ms = benchmark(find_nearby_h3, rider_lat, rider_lng, drivers)
+    drivers = json.load(open("../starter/drivers_fallback.json"))
 
-    results, avg_ms = None, None  # placeholder until implemented
+    results, avg_ms = benchmark(find_nearby_h3, rider_lat, rider_lng, drivers)
+    
 
     if results:
         for i, (driver_id, dist) in enumerate(results, 1):
