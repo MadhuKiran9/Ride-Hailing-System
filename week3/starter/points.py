@@ -12,6 +12,11 @@ ROUTE_PAIRS = {
         17.4239, 78.4738,   # Secunderabad
         "Hyderabad Centre → Secunderabad"
     ),
+    "ongole": (
+        15.4916, 80.0515,   # Annavarapadu Colony
+        15.5080, 80.0391,   # Gandhi Park
+        "Annavarapadu Colony -> Gandhi Park"
+    ),
     "mumbai": (
         19.0760, 72.8777,   # Churchgate
         19.1136, 72.8697,   # Bandra
@@ -35,6 +40,6 @@ ROUTE_PAIRS = {
 }
 
 # Change this to your city
-SELECTED_CITY = "hyderabad"
+SELECTED_CITY = "ongole"
 
 ORIGIN_LAT, ORIGIN_LNG, DEST_LAT, DEST_LNG, LABEL = ROUTE_PAIRS[SELECTED_CITY]

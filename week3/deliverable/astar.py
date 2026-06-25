@@ -40,6 +40,15 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     Do NOT use any library for this.
     """
     # --- your code here ---
+    phi1, phi2 = math.radians(lat2), math.radians(lat1)
+    del1 = phi1 - phi2
+    del2 = math.radians(lon2 - lon1)
+    R = 6_371_000 
+
+    a = math.sin(del1 / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(del2 / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c
     pass
 
 
@@ -71,12 +80,60 @@ def astar(G, origin_node: int, dest_node: int) -> tuple[list, float, int]:
     """
     dest_lat = G.nodes[dest_node]['y']
     dest_lon = G.nodes[dest_node]['x']
-
+    INF = float('inf')
     # --- your code here ---
+    g_distances = {}
+    previous = {}
+    visited = set()
+    heap = []
+    nodes_explored = 0
+
+    for node in G.nodes:
+        g_distances[node] = INF
+    g_distances[origin_node] = 0
+
+    h_origin = haversine(G.nodes[origin_node]['y'], G.nodes[origin_node]['x'], G.nodes[dest_node]['y'], G.nodes[dest_node]['x'])
+
+    heapq.heappush(heap, (h_origin, origin_node))
+
+    while heap:
+        current_f, current_node = heapq.heappop(heap)
+
+        if current_node in visited:
+            continue
+        visited.add(current_node)
+        nodes_explored += 1
+        
+        if current_node == dest_node:
+            break
+        
+        for neighbour_node in G.neighbors(current_node):
+            weight = min(d['length'] for d in G[current_node][neighbour_node].values())
+            if g_distances[current_node] + weight < g_distances[neighbour_node]:
+                h_neighbour = haversine(G.nodes[neighbour_node]['y'], G.nodes[neighbour_node]['x'], G.nodes[dest_node]['y'], G.nodes[dest_node]['x'])
+                g_distances[neighbour_node] = g_distances[current_node] + weight
+                heapq.heappush(heap, (h_neighbour + g_distances[neighbour_node], neighbour_node))
+                previous[neighbour_node] = current_node
+        
+    distance = g_distances[dest_node]
 
     path = []
-    distance = 0.0
-    nodes_explored = 0
+
+    if dest_node == origin_node:
+        path = [origin_node]
+    elif dest_node in visited:
+        temp = dest_node
+        while True:
+            path.append(temp)
+
+            if temp == origin_node:
+                break
+            
+            temp = previous[temp]
+        path.reverse()
+    else:
+        path = []
+
 
     return path, distance, nodes_explored
 
@@ -93,10 +150,59 @@ def dijkstra(G, origin_node: int, dest_node: int) -> tuple[list, float, int]:
       - Stopping early when dest_node is reached (no need to explore the whole graph)
     """
     # --- your code here ---
+    distances = {}
+    previous = {}
+    nodes_explored = 0
+
+    # --- your code here ---
+    INF = float("inf")
+
+    for node in G.nodes:
+        distances[node] = INF
+    distances[origin_node] = 0
+    
+    heap = []
+    heapq.heappush(heap, (0, origin_node))
+    
+    visited = set()
+
+    while heap:
+        current_dist, current_node = heapq.heappop(heap)
+
+        if current_node in visited:
+            continue
+        visited.add(current_node)
+        nodes_explored += 1
+        if current_node == dest_node:
+            break
+        
+        for neighbour in G.neighbors(current_node):
+            weight = min(d['length'] for d in G[current_node][neighbour].values())
+            if current_dist + weight < distances[neighbour]:
+                distances[neighbour] = current_dist + weight
+                previous[neighbour] = current_node
+                heapq.heappush(heap, (distances[neighbour], neighbour))
+            
+    distance = distances[dest_node]        
 
     path = []
-    distance = 0.0
-    nodes_explored = 0
+
+    if dest_node == origin_node:
+        path = [origin_node]
+    elif dest_node in visited:
+        temp = dest_node
+        while True:
+            path.append(temp)
+
+            if temp == origin_node:
+                break
+            
+            temp = previous[temp]
+        path.reverse()
+    else:
+        path = []
+
+    
 
     return path, distance, nodes_explored
 
@@ -116,7 +222,14 @@ def visualise_route(G, path: list, filename: str = "output/route_map.html"):
     """
     try:
         import folium
-        # --- your code here ---
+        m = folium.Map(
+            location=[G.nodes[path[0]]['y'], G.nodes[path[0]]['x']],
+            zoom_start=14
+        )
+        folium.PolyLine(
+            [(G.nodes[n]['y'], G.nodes[n]['x']) for n in path]
+        ).add_to(m)
+        m.save(filename)
         print(f"Interactive map saved to: {filename}")
     except ImportError:
         # fallback: matplotlib static plot
@@ -135,7 +248,7 @@ def main():
 
     # 1. Download road network
     print("Loading road network (cached after first run)...")
-    G = ox.graph_from_place("Hyderabad, India", network_type="drive")
+    G = ox.graph_from_place("Ongole, Andhra Pradesh, India", network_type="drive")
     print(f"Graph: {G.number_of_nodes():,} nodes, {G.number_of_edges():,} edges\n")
 
     # 2. Snap coordinates to nearest graph nodes

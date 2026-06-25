@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 print("Downloading road network from OpenStreetMap...")
 print("(This may take 10–30 seconds on first run, then it's cached.)\n")
 
-G = ox.graph_from_place("Hyderabad, India", network_type="drive")
+G = ox.graph_from_place("Ongole, Andhra Pradesh, India", network_type="drive")
 
 # ── 2. Inspect the graph ──────────────────────────────────────────────────────
 print(f"Nodes (intersections): {G.number_of_nodes():,}")
